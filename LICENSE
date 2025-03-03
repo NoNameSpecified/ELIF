@@ -1,4 +1,4 @@
-MIT License
+(modified) MIT License
 
 Copyright (c) 2025 Kendrik
 
@@ -9,8 +9,15 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+2. If you redistribute the Software (in any form or modified), you must include a 
+   reference to the original repository: https://github.com/NoNameSpecified/ELIF.
+   If the redistributed software is closed-source, the reference needs to be on
+   the splash screen or have comparable visibility.
+
+To modify these permissions, contact me (e.g., by the Discord on https://github.com/NoNameSpecified).
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
