@@ -22,15 +22,15 @@ work on multiple platforms, not just windows.
 1. Create a Discord Application for your bot (see https://youtu.be/b61kcgfOm_4, https://discord.com/developers/applications).
 2. In the Discord Dev Portal, in the "Bot" tab of your application, enable presence intent, server members intent, message content intent.
 3. Invite the bot to a server where the user you want to communicate with is also a member (else the bot can't dm him).
-4. Download the code from the repo in src/ (for packages see info below).
+4. Download the code from the repo in src/ (for releases see info below). Compile main.c
 6. Install python3 if you dont have it (choose "add to path" to make "python" callable in cmd).
 7. Install discord.py with pip (in your cmd: "pip install discord.py")
 8. Edit config.json and add your bot-token, the guild_id of the server (see above) and the user_id of the user you want to communicate with.
 9. Start elif :)
 
--> Customize the menu_options.h to create your own menu, then compile the code.
+-> Customize the menu_options.h to create your own menu, then compile main.c
 
-additional info: you don't have to install the whole repo files in src/, you can also download a published package which has a pre-compiled .exe (you will still need to have python and discord.py installed). A mid-term goal would be to make the user able to create menus directly from the program but currently you need to customize menu_options.h.
+additional info: you don't have to install the whole repo files in src/, you can also download a published release which has a pre-compiled .exe - https://github.com/NoNameSpecified/ELIF/tags - (you will still need to have python and discord.py installed). A mid-term goal would be to make the user able to create menus directly from the program but currently you need to customize menu_options.h.
 
 
 ### new in version 1.1
