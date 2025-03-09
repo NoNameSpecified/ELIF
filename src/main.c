@@ -1,13 +1,13 @@
 /*
  * Program name: ELIF (a turkish female firstname, not python "else if" lol).
  * Author: kendrik.
- * Version: 0.3.
+ * Version: 1.2.
  * Repository: https://github.com/NoNameSpecified/ELIF.
  * Short Description: simple terminal based selection tool for windows.
  * License: modified MIT license (see license in repository, short: keep a link to the official repo and,
  *                                if you redistribute the code closed source, put it on splash screen).
  * First created: 25.02.2025.
- * Last modified: 03.03.2025.
+ * Last modified: 09.03.2025.
  *
  * Long Description:
  *  The goal is to let the user choose one or multiple options from (currently) pre-defined options.
@@ -25,17 +25,26 @@
 #define PGM_NAME        "ELIF" // turkish female firstname, not python "else if" lol.
 #define DEV             "kendrik"
 #define ORIGINAL_REPO   "https://github.com/NoNameSpecified/ELIF"
-#define VERSION         "0.3"
+#define VERSION         "1.2" // currently working on 1.2 to enhance .c and .py
+
+/* NEW IN VERSION 1.1
+ * added python message sender.
+ * but it is not yet very versatile and limited to specific use case.
+ */
+
+/* NEW IN VERSION 1.2
+ * bug fixes and enhancements, particularly for multiple selection.
+ */
 
 /* TODO:
  * -- maybe esc should close program/go back to splash screen and we use something else to return to main menu
  * -- select multiple options directly with space.
  * -- optimize code.
- * -- create python script with discord bot implementation to send message.
- * -- don't let "none" be enough to send.
- * -- don't let the user choose the same option multiple times at once.
- * -- change the "selected" info when you brows the menu.
+ * -- let user choose to go to sending screen directly from menu without choosing option.
  * -- improve aesthetics.
+ * -- enhance python side.
+ * -- create customization option on splash screen:
+ *      start default / see or edit config / set custom config /
  */
 
 
@@ -47,6 +56,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <conio.h> // only works on windows.
 #include <windows.h> // only works on windows.
 
@@ -55,11 +65,11 @@
 //
 
 /// general functions moved to this header file.
-#include "general_functions.h"
+#include "includes/general_functions.h"
 /// colours are defined in that header, used throughout the code to make it more aesthetic.
-#include "define_colours.h"
+#include "includes/define_colours.h"
 /// this header file will include the options arrays. They all need to end with NULL !
-#include "menu_options.h"
+#include "includes/real_menu_options.h" // Demo: #include "includes/demo_menu_options.h" bzw im GitHub "demo_menu_options.h"
 
 // currently only working in windows. Other OS maybe later.
 #ifndef _WIN32
@@ -78,61 +88,57 @@ char *draw_selected(char **options, char **final_choice){ // returns a string (t
 
     const int choices_count = count_options(options); // all option arrays need to end with NULL for this function.
     const int selected_count = count_options(final_choice);
-    int found_selected = 0;
-    // to know from what position from we rewrite.
-    int last_prompt_line = 0;
-    // we don't actually need lines printed if we just overwrite and don't clear_lines(from row, to row) + overwrite.
-    // Keeping it in case.
-    int lines_printed = 0;
+    // we are going to need these for the selected visibility
+    int is_selected = 0; int found_selected = 0;
+
     char key;
 
     // info: we print these things (i call it "prompt") outside the loop
     // because the loop will only redraw the options part to show highlighted.
     printf(BLACK "<enter> " BLUE "to select an option /" BLACK " <space> " BLUE "to select multiple (" RED "*" BLUE);
-    printf(" shows selected)\npress" BLACK " <q> " BLUE "or" BLACK " <esc> " BLUE "to go back to MAIN MENU\n\n" RESET);
-
-    lines_printed += 3; // 3 * "\n" in line above.
-    last_prompt_line += 3; // update this separately.
+    printf(" shows already selected)\npress" BLACK " <q> " BLUE "or" BLACK " <esc> " BLUE "to go back to MAIN MENU\n\n" RESET);
 
     // for multiple selection
-    printf(BLUE "Currently selected: ");
+    printf(BLUE "Currently selected");
     for (int i = 0 ; i < selected_count ; i++) {
         // array is initialized with lots of "NULL". Only show actual content.
         // info: we use != NULL just in case, we don't really need it.
         // But: check for it needs to be before check for "NULL", else segmentation fault.
         if ( final_choice[i] != NULL && strcmp(final_choice[i], "NULL") != 0) {
             printf(BLUE " -" RED " %s", final_choice[i]);
-            found_selected ++; // found_selected = 1 would be enough.
+            found_selected ++;
         }
     }
     // if nothing already in selection yet, say none.
-    if (found_selected == 0){ printf(RED "none" BLUE "."); }
+    if (!found_selected){ printf( ": " RED "none" BLUE "."); }
     printf(RESET "\n\n");
 
-    lines_printed += 2; last_prompt_line += 2;
-
+    // print menu with highlight and currently selected.
     while (1){
-        // clear_screen(); --> we just overwrite.
-
-        // print menu with highlight for currently selected.
         for (int i = 0 ; i < choices_count; i++){
-            if (i == choice){
+            // default: current option that is being printed is not selected
+            is_selected = 0;
+
+            for (int j = 0 ; j < selected_count ; j++) {
+                // if the option is in the final choices
+                if (options[i] == final_choice[j]) {
+                    // set selected to true
+                    is_selected = 1;
+                }
+            }
+
+            // print accordingly
+            if (i == choice && is_selected) {
+                print_selected_highlighted(options[i]);
+            } else if (i == choice) { // i == choice und !is_selected
+                print_highlighted(options[i]);
+            } else if (is_selected) { // is_selected und i != choice
                 print_selected(options[i]);
             } else {
                 print_menu(options[i]);
             }
 
-            // info for already selected
-            for (int ii = 0 ; ii < selected_count - 1; ii++) {
-                if (strcmp(options[i], final_choice[ii]) == 0) {
-                    printf(RED " [selected] " RESET);
-                    break;
-                }
-            }
-
             printf("\n\n");
-            // we need this to know how many lines to rewrite
-            lines_printed += 3; // 1x for the actual content line and 2x for the \n\n
         }
 
         key = getch(); // waiting for key(board)
@@ -146,8 +152,22 @@ char *draw_selected(char **options, char **final_choice){ // returns a string (t
                 choice --;
             }
         // other cases
-        } else if (key == '\r'){ // enter
-            break;
+        } else if (key == '\r'){ // enter --> choose current option
+            // but: don't choose something that is already selected
+            int already_selected = 0;
+            // only test if we have anything selected at all yet.
+            if (found_selected) {
+                for (int j = 0 ; j < selected_count ; j++) {
+                    // if current option (string) == one of our final choices (string too).
+                    if (strcmp(options[choice], final_choice[j]) == 0) {
+                        // --> selected, stay in choosing menu.
+                        already_selected = 1;
+                        break; // break out of for loop.
+                    }
+                }
+            }
+            // if not already selected, go through ; if already_selected: continue (stay in menu).
+            if (!already_selected) break;
         } else if (key == 'q' || key == 27) { // 27 is "esc".
             // leads us back to main menu // TODO -- maybe esc should do something else.
             return "main_menu";
@@ -159,10 +179,9 @@ char *draw_selected(char **options, char **final_choice){ // returns a string (t
         if (choice < 0) { choice = choices_count - 1; }
         if (choice >= choices_count) { choice = 0; }
 
-        // info: we don't need to clear lines and rewrite, we can just overwrite.
-        move_cursor_precise(last_prompt_line + 1 , 0);
+        // we just move up (from below) and rewrite, simpler than moving cursor from top and needing to calculate.
+        move_cursor_up(choices_count * 2); // times 2 because we always have a clear line in between
     }
-
     return options[choice];
 }
 
@@ -173,7 +192,7 @@ int draw_choice(char **final_choice){ // returns 0 for yes, 1 for add more and 2
 
     clear_screen(); // - only need one at the beginning, else we just rewrite the core, not the outside.
 
-    int choice = 1; // default ist send more options
+    int choice = 0; // default could also be 1 to default send more options
     int choices_count = 3; // just defining this myself here, because this would be easy to change if we need to.
     char *options[] = {"yes send !", "add more options" , "noo, go back pls (reset)"};
 
@@ -190,7 +209,7 @@ int draw_choice(char **final_choice){ // returns 0 for yes, 1 for add more and 2
     printf(BLUE "\n\nDo you want to send this selection ? press" BLACK " <q> " BLUE "or" BLACK " <esc> ");
     printf(BLUE "to go back to MAIN MENU\n\n" );
     // print the choices we already have (can be none or multiple).
-    printf(BG_BLUE WHITE "\nyour final choice:" RESET " ");
+    printf(BG_BLUE WHITE "\nyour final choice" RESET " ");
     for (int i = 0 ; i < selected_count ; i++) {
         if (strcmp(final_choice[i], "NULL") != 0) {printf(BLUE "- " RED "%s " RESET, final_choice[i]);}
     }
@@ -236,11 +255,9 @@ int draw_choice(char **final_choice){ // returns 0 for yes, 1 for add more and 2
         if (choice < 0) { choice = choices_count - 1; }
         if (choice >= choices_count) { choice = 0; }
 
-
         // Redraw screen (without clearing the whole screen) !
-
-        // options start at row 8 ("yes send !") and stop row 10 ("noo, go back pls").
-        move_cursor_precise(8, 0);
+        // edit: i used move_cursor_precise before, but it is EVEN easier to just move the cursor up and rewrite !
+        move_cursor_up(3); // move up 3 lines because we only have 3 options here.
     }
 
     // we used malloc() above, so we need to free the space now.
@@ -297,7 +314,7 @@ void splash_screen() {
     // as a variable to calculate length
     char welcome_prompt[] = "press to start";
     printf(YELLOW BLINK "%s", welcome_prompt);
-    printf(RESET_STYLE);
+    printf(RESET_DEFAULT);
 
     // convert to int because we will never go above int (strlen() returns size_t, can cause problems, raises warning).
     const int welcome_prompt_len = (int)(start_col_bot + strlen(welcome_prompt)); // sizeof counts \0, strlen not.
@@ -333,37 +350,27 @@ void splash_screen() {
 }
 
 
-int main(){
-
-    // we don't need a cursor, we show highlighted stuff ourselves.
-    hide_cursor();
-
-    // welcome screen with press to start.
-    splash_screen();
-
-    // Sandfarben-background
-    // RESET includes bg-colour and changes font-colour to white.
-    printf(RESET);
-    // final options can be one or multiple.
-    // for now, we will put max_choices to 10, should be more than enough.
-    int max_choices = 10;
-    char *final_choice[] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"}; // array for multiple choices
+// The FIRST MAIN PART of the code. This runs the whole select app and starts the menus etc.
+void run_select_app(char **final_choice, const int max_choices) {
     int main_iteration = 0;
+    int sending_choice; // initialise here, because value can change.
 
     while (1){
-
-        if (main_iteration >= max_choices - 1){
-            printf("maximum options reached (max: %i)\n", max_choices);
+        // if reached max, inform user, go back.
+        if (main_iteration >= max_choices){
+            printf(MAGENTA "\n/!\\ maximum options reached (max: %i)\nPress to continue.", max_choices);
+            getch(); // wait for (any) key to continue.
+            // directly choose between sending or resetting completely.
+            sending_choice = draw_choice(final_choice);
+        } else { // else go usual way: choose an option, then choose to send / re-choose / reset.
+            // first: get our selection
+            final_choice[main_iteration] = start_selection(final_choice);
+            // then: draw yes / no selection.
+            sending_choice = draw_choice(final_choice);
         }
 
-        // first: get our selection
-        final_choice[main_iteration] = start_selection(final_choice);
-
-        // then: draw yes / no selection.
-        int sending_choice = draw_choice(final_choice);
-
         if (sending_choice == 0){
-            printf("SENDING SENDING SENDING\n");
+            // printf("SENDING SENDING SENDING\n");
             break;
         } else if (sending_choice == 1) {
             // when "add more options"
@@ -380,11 +387,123 @@ int main(){
         main_iteration ++;
     }
 
-    // end of code, end of menu. In later versions we want to communicate this to a python bot script, so we can
-    // communicate the choice to the other person. Easiest option for now.
+    // END OF SELECT APP
     clear_screen();
-    printf(BLACK "\n\nended successfully\n\n");
-    getchar();
-    return 0;
+    printf(RESET);
+}
 
+// handles the "python" part aka the discord bot used to send the message with the options.
+char *run_discord_handler(const int max_choices, char **final_choice) {
+    // --> create formatted options for python script.
+    const int max_len = max_choices * 100 + 1; // every option should be way less than 100 ; +1 for null terminator.
+    char formatted_options[max_len];
+
+    // need to init with \0 else it's a random value and that messes with our strncat().
+    memset(formatted_options, '\0', sizeof(formatted_options));
+
+    // create a formatted_options string to pass as command.
+    // our format should be something like option 1;;option 2;;option 3 with stuff;; ...
+    int options = 0;
+    for (int i = 0 ; i < max_choices ; i++) {
+        // if not NULL = if there is an option
+        if (strcmp(final_choice[i], "NULL") != 0) {
+            // add to the string
+            strncat(formatted_options, final_choice[i], 100); // max 100, like above.
+            strcat(formatted_options, ";;");
+            options++;
+        }
+    }
+
+    // if there is no option --> back to menu to choose.
+    if (options == 0) {
+        return "empty_choice";
+    }
+
+    /* start python processing. Script will
+    *      (1) get config, set up bot,
+    *      (2) format options and send message,
+    *      (3) close and come back here   */
+
+    char *path = ""; // in case the .py sits somewhere else. Then put = "C:\\Users\\...\\";
+    char *file_name = "messenger_bot.py";
+    char *py = "python ";
+
+    // inform user we start sending process.
+    printf(RESET_DEFAULT);
+    reset_screen();
+    printf("    \nsending options via discord...\n");
+
+    // create the command to launch python script.
+    char full_command[500];
+    // we need to put formatted options in "quotation marks"
+    // because else cmd reads special chars (like < or &) as commands
+    sprintf(full_command, "%s\"%s%s\" \"%s\"", py, path, file_name, formatted_options);
+
+    // printf("%s", full_command);
+
+    // start python script with popen to read output from python ("print" in python will be sent here)
+    FILE *python_process = popen(full_command, "r");
+    // buffer to save output
+    char buffer[500];
+
+    if (python_process == NULL) {
+        printf("    Error starting python process !");
+        getchar();
+    }
+
+    // log - prints output from python for user info (and debugging if needed).
+    while ( fgets(buffer, sizeof(buffer), python_process) != NULL ) {
+        printf("%s\n", buffer);
+    }
+
+    // python process finished, close.
+    pclose(python_process);
+    // back to main().
+    return "success";
+}
+
+
+int main(){
+
+    // we don't need a cursor, we show highlighted stuff ourselves.
+    hide_cursor();
+
+    // welcome screen with press to start.
+    splash_screen();
+
+    // Sandfarben-background
+    // RESET includes bg-colour and changes font-colour to white.
+    printf(RESET);
+    // final options can be one or multiple.
+    // for now, we will put max_choices to 10, should be more than enough.
+    const int max_choices = 10; // max_choices = sizeof(options)/sizeof(options[0])
+    char *final_choice[] = {"NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"}; // array for multiple choices
+    // for "return" value of python handler.
+    char *python_return;
+
+    // loop between menu and python handler
+    while (1) {
+        // SELECTION PART
+        run_select_app(final_choice, max_choices);
+
+        // PYTHON PART (sending msg over discord with bot)
+        python_return = run_discord_handler(max_choices, final_choice);
+
+        // if we empty_choice = choose something
+        if (strcmp(python_return, "empty_choice") == 0) {
+            printf("Error: no options chosen. Press to go back to main menu.\n");
+        } else if (strcmp(python_return, "success") == 0) {
+            // success = continue regular code
+            break;
+        } // no "else {}".
+    }
+
+
+    // END OF ELIF-PROGRAM
+
+    // inform user
+    printf("       <ENTER> to close.       ");
+    getchar();
+
+    return 0;
 }
