@@ -1,0 +1,5 @@
+{
+    "token": "your_bot_token",
+    "guild": "guild_id (a server the bot has in common with the user you communicate with)",
+    "user": "user_id"
+}
