@@ -18,7 +18,7 @@ In the long term, the goal would be to offer other ways to communicate the infor
 work on multiple platforms, not just windows.
 
 
-## install and use:
+## - Install & Use:
 1. Create a Discord Application for your bot (see https://youtu.be/b61kcgfOm_4, https://discord.com/developers/applications).
 2. In the Discord Dev Portal, in the "Bot" tab of your application, enable presence intent, server members intent, message content intent.
 3. Invite the bot to a server where the user you want to communicate with is also a member (else the bot can't dm him).
