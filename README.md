@@ -1,3 +1,5 @@
+![splash_screen](https://github.com/user-attachments/assets/8ac08913-4b6a-4f1d-9c5b-00bd94d1a02c)
+
 # **ELIF** v1.2
 ### For questions: ask me on Discord at *<kendrik2.0>*
 Code is still in development. Only works on windows10 or above. Have fun if you wanna try / modify it :)
