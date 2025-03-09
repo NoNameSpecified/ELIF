@@ -28,7 +28,7 @@ work on multiple platforms, not just windows.
 8. Edit config.json and add your bot-token, the guild_id of the server (see above) and the user_id of the user you want to communicate with.
 9. Start elif :)
 
--> Customize the menu_options.h to create your own menu.
+-> Customize the menu_options.h to create your own menu, then compile the code. 
 additional info: you don't have to install the whole repo files in src/, you can also download a published package which has a pre-compiled .exe (you will still need to have python and discord.py installed). A mid-term goal would be to make the user able to create menus directly from the program but currently you need to customize menu_options.h.
 
 
