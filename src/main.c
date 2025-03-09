@@ -69,7 +69,7 @@
 /// colours are defined in that header, used throughout the code to make it more aesthetic.
 #include "includes/define_colours.h"
 /// this header file will include the options arrays. They all need to end with NULL !
-#include "menu_options.h"
+#include "includes/menu_options.h"
 
 // currently only working in windows. Other OS maybe later.
 #ifndef _WIN32
