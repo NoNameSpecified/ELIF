@@ -53,3 +53,13 @@ additional info: you don't have to install the whole repo files in src/, you can
 - create customization option on splash screen:
      start default / see or edit config / set custom config /
 - make the menu_options customizable directly in the terminal program.
+
+
+![splash_screen](https://github.com/user-attachments/assets/8ac08913-4b6a-4f1d-9c5b-00bd94d1a02c)
+
+![menu_screen](https://github.com/user-attachments/assets/2538a7bc-e49e-4e1d-ad25-495c6c4914cb)
+
+![sending_screen](https://github.com/user-attachments/assets/9c328a5e-d469-4519-821e-05b2ec6ebb70)
+
+![sent_screen](https://github.com/user-attachments/assets/208ef0e1-fc43-4741-9870-8751edb56f1a)
+
