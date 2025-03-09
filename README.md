@@ -45,7 +45,7 @@ additional info: you don't have to install the whole repo files in src/, you can
 - fixed: already selected cannot be selected multiple times.
 - fixed: menu options now don't risk to be recognized as cmd commands.
 
-### TODOs in v1.2.
+### todo's in v1.2.
 - maybe esc should close program/go back to splash screen and we use something else to return to main menu
 - select multiple options directly with space.
 - optimize code.
