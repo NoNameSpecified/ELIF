@@ -88,7 +88,7 @@ char **get_new_menu(char *menu_selection){
     }
 
     else {
-        // Default: NULL, which is handled in main.c as back to main menu
+        // no new menu = option is the choice to send.
         return NULL;
     }
 
