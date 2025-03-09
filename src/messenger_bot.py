@@ -77,7 +77,7 @@ class MessageSender:
         msg = await self.member.send(embed = embed)
         """
 
-        msg = "*Message from ELIF\n*"
+        msg = "*Message from ELIF*\n"
         i = 0
         for option in self.passed_options:
             i += 1
